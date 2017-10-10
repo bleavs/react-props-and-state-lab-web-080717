@@ -13,8 +13,39 @@ class App extends React.Component {
       filters: {
         type: 'all',
       }
-    };
+    }; // setting state internally
   }
+
+  onChangeType = (type) => {
+    this.setState({
+      filters: {
+        type: type
+      }
+    }) //updating state of type to passed in type
+  }
+
+  fetchPets = () => {
+    const type = this.state.filters.type
+
+    const query = type === 'all' ? '' : `?type=${type}`
+    const url = '/api/pets' + query
+
+    fetch(url)
+      .then(res => res.json())
+      .then(json => {
+        this.setState({
+          pets: json
+        })
+      }) //updating pets state w/ new pet
+
+  }
+
+  onAdoptPet = (petId) => {
+    this.setState({
+      adoptedPets: this.state.adoptedPets.concat([petId])
+    }) //updating the adopted pets array -- state - in app
+  }
+
 
   render() {
     return (
@@ -24,14 +55,26 @@ class App extends React.Component {
         </header>
         <div className="ui container">
           <div className="ui grid">
+
             <div className="four wide column">
-              <Filters />
+              <Filters
+                filters={this.state.filters}
+                onChangeType={this.onChangeType}
+                onFindPetsClick={this.fetchPets}/>
             </div>
+
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser
+                pets = {this.state.pets} // setting props from Apps state-- parent setting props from its internal state
+                adoptedPets = {this.state.adoptedPets}
+                onAdoptPet = {this.onAdoptPet}
+                />
+
             </div>
+
           </div>
         </div>
+
       </div>
     );
   }
